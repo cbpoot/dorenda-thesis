@@ -1,0 +1,100 @@
+#!/usr/bin/python
+
+#Import modules
+import numpy as np
+import matplotlib.pyplot as mpl
+import pandas as pd
+import time
+import os
+import csv
+from sklearn import linear_model
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier as rfc
+
+#functions
+
+class Evaluation:
+	def __init__(self, truevals, predictvals):
+		self.truevals = truevals
+		self.predictvals = predictvals
+
+	def truepositives(self):
+		tp = 0
+		for i in len(self.truevals):
+			if self.truevals(i) == 1 & self.predictvals(i) == 1:
+				tp += 1
+
+
+dataLocation = "/Users/cornelisvletter/desktop/progs/scriptie dorenda/main_data"
+
+month = "may"
+dataSource = "/Users/cornelisvletter/desktop/progs/scriptie dorenda/main_data/Data_2dec_%s.csv" % month
+
+os.chdir(dataLocation)
+
+data = pd.read_table(dataSource, header = 0, sep = ";",error_bad_lines = False, na_values = 'NULL')
+
+target = data["STATUS"]
+identifier = data["customer_key"]
+
+variablesToDrop = [0,1,2,3,4,48,49,53,54,58,59,63,64,68,69]
+predictors = data
+predictors.drop(predictors.columns[variablesToDrop], axis=1, inplace=True)
+
+y = target
+X = predictors
+
+#normalize X
+meansX = np.mean(X)
+dX = X - meansX
+stdX = np.std(X)
+nX = dX / stdX
+
+#Logistic Regression
+logreg = linear_model.LogisticRegression(penalty="l1", C=1e5)
+
+logreg.fit(nX, y)
+yHat_lr = logreg.predict(nX)
+yProb_lr = logreg.predict_proba(nX)
+temp = pd.DataFrame(yProb_lr)
+yProb_lr = temp[1]
+
+#Decision Tree
+dectree = tree.DecisionTreeClassifier()
+dectree.fit(nX, y)
+yHat_dt = dectree.predict(nX)
+yProb_dt = dectree.predict_proba(nX)
+temp = pd.DataFrame(yProb_dt)
+yProb_dt = temp[1]
+
+#Random Forests
+randfor = rfc()
+randfor.fit(nX, y)
+yHat_rf = randfor.predict(nX)
+yProb_rf = randfor.predict_proba(nX)
+temp = pd.DataFrame(yProb_rf)
+yProb_rf = temp[1]
+
+#Temp export naar csv
+
+results = pd.DataFrame(y)
+results["PRED_LR"] = yHat_lr
+results["PRED_DT"] = yHat_dt
+results["PRED_RF"] = yHat_rf
+results["PROB_LR"] = yProb_lr
+results["PROB_DT"] = yProb_dt
+results["PROB_RF"] = yProb_rf
+
+results.to_csv("Results.csv", sep=";")
+
+print "Predicted number of ones: %s" % sum(yHat)
+print "Number of true positives: %s" % truePositives
+
+
+
+
+
+
+
+
+
