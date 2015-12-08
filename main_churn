@@ -17,11 +17,12 @@ class Evaluation:
 		self.truevals = truevals
 		self.predictvals = predictvals
 	
-		self.tp = 0
-		self.fp = 0
-		self.tn = 0
-		self.fn = 0
+		self.tp = 0	#Counter of true positives
+		self.fp = 0	#Counter of false positives
+		self.tn = 0	#Counter of true negatives
+		self.fn = 0	#Counter of false negatives
 	
+		#Code to count false/true positives/negatives
 		for i in range(0,len(self.truevals)):
 			if self.truevals[i] == 1 and self.predictvals[i] == 1:
 				self.tp += 1
@@ -71,7 +72,7 @@ dX = X - meansX
 stdX = np.std(X)
 sX = dX / stdX
 nX = pd.DataFrame(np.ones(len(sX)))
-nX = pd.concat([nX, sX], axis=1, ignore_index=True)
+nX = pd.concat([nX, sX], axis=1, ignore_index=True)	#normalized X (predictor variables)
 
 #Machine Learning
 
