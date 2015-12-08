@@ -11,19 +11,41 @@ from sklearn import linear_model
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier as rfc
 
-#functions
+#Classes
 
 class Evaluation:
 	def __init__(self, truevals, predictvals):
 		self.truevals = truevals
 		self.predictvals = predictvals
+	
+		self.tp = 0
+		self.fp = 0
+		self.tn = 0
+		self.fn = 0
+	
+		for i in range(0,len(self.truevals)):
+			if self.truevals[i] == 1 and self.predictvals[i] == 1:
+				self.tp += 1
+			elif self.truevals[i] == 0 and self.predictvals[i] == 1:
+				self.fp += 1
+			elif self.truevals[i] == 0 and self.predictvals[i] == 0:
+				self.tn += 1
+			elif self.truevals[i] == 1 and self.predictvals[i] == 0:
+				self.fn += 1
 
 	def truepositives(self):
-		tp = 0
-		for i in len(self.truevals):
-			if self.truevals(i) == 1 & self.predictvals(i) == 1:
-				tp += 1
+		return self.tp
 
+	def precision(self):
+		return float(self.tp) / float(self.tp + self.fp)
+
+	def recall(self):
+		return float(self.tp) / float(self.tp + self.fn)
+
+	def accuracy(self):
+		return float(self.tp + self.tn) / float(self.tp + self.tn + self.fp + self.fn)
+
+#Data Import
 
 dataLocation = "/Users/cornelisvletter/desktop/progs/scriptie dorenda/main_data"
 
@@ -34,6 +56,8 @@ os.chdir(dataLocation)
 
 data = pd.read_table(dataSource, header = 0, sep = ";",error_bad_lines = False, na_values = 'NULL')
 
+
+#Select predictor variables and target variable
 target = data["STATUS"]
 identifier = data["customer_key"]
 
@@ -48,7 +72,11 @@ X = predictors
 meansX = np.mean(X)
 dX = X - meansX
 stdX = np.std(X)
-nX = dX / stdX
+sX = dX / stdX
+nX = pd.DataFrame(np.ones(len(sX)))
+nX = pd.concat([nX, sX], axis=1, ignore_index=True)
+
+#Machine Learning
 
 #Logistic Regression
 logreg = linear_model.LogisticRegression(penalty="l1", C=1e5)
@@ -67,7 +95,7 @@ yProb_dt = dectree.predict_proba(nX)
 temp = pd.DataFrame(yProb_dt)
 yProb_dt = temp[1]
 
-#Random Forests
+#Random Forest
 randfor = rfc()
 randfor.fit(nX, y)
 yHat_rf = randfor.predict(nX)
@@ -75,8 +103,8 @@ yProb_rf = randfor.predict_proba(nX)
 temp = pd.DataFrame(yProb_rf)
 yProb_rf = temp[1]
 
-#Temp export naar csv
 
+#Temp export naar csv
 results = pd.DataFrame(y)
 results["PRED_LR"] = yHat_lr
 results["PRED_DT"] = yHat_dt
@@ -87,14 +115,13 @@ results["PROB_RF"] = yProb_rf
 
 results.to_csv("Results.csv", sep=";")
 
-print "Predicted number of ones: %s" % sum(yHat)
-print "Number of true positives: %s" % truePositives
+#How to call Evaluation class
 
+ml_models = ["lr", "dt", "rf"]
 
+eval_test = Evaluation(y, yHat_%s) % ml_models[0]
 
-
-
-
-
-
-
+print "True positives: %s" % eval_test.truepositives()
+print "Precision: %s" % eval_test.precision()
+print "Recall: %s" % eval_test.recall()
+print "Accuracy: %s" % eval_test.accuracy()
