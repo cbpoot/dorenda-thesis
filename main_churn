@@ -12,7 +12,6 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier as rfc
 
 #Classes
-
 class Evaluation:
 	def __init__(self, truevals, predictvals):
 		self.truevals = truevals
@@ -46,16 +45,14 @@ class Evaluation:
 		return float(self.tp + self.tn) / float(self.tp + self.tn + self.fp + self.fn)
 
 #Data Import
-
-dataLocation = "/Users/cornelisvletter/desktop/progs/scriptie dorenda/main_data"
+dataLocation = "FILL IN DIRECTORY OF DATA"
 
 month = "may"
-dataSource = "/Users/cornelisvletter/desktop/progs/scriptie dorenda/main_data/Data_2dec_%s.csv" % month
+dataSource = "FILL IN EXACT DIRECTORY LINK OF DATA/Data_2dec_%s.csv" % month
 
 os.chdir(dataLocation)
 
 data = pd.read_table(dataSource, header = 0, sep = ";",error_bad_lines = False, na_values = 'NULL')
-
 
 #Select predictor variables and target variable
 target = data["STATUS"]
@@ -80,7 +77,6 @@ nX = pd.concat([nX, sX], axis=1, ignore_index=True)
 
 #Logistic Regression
 logreg = linear_model.LogisticRegression(penalty="l1", C=1e5)
-
 logreg.fit(nX, y)
 yHat_lr = logreg.predict(nX)
 yProb_lr = logreg.predict_proba(nX)
@@ -103,7 +99,6 @@ yProb_rf = randfor.predict_proba(nX)
 temp = pd.DataFrame(yProb_rf)
 yProb_rf = temp[1]
 
-
 #Temp export naar csv
 results = pd.DataFrame(y)
 results["PRED_LR"] = yHat_lr
@@ -116,7 +111,6 @@ results["PROB_RF"] = yProb_rf
 results.to_csv("Results.csv", sep=";")
 
 #How to call Evaluation class
-
 ml_models = ["lr", "dt", "rf"]
 
 eval_test = Evaluation(y, yHat_%s) % ml_models[0]
